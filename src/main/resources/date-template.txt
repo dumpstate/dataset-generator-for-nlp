@@ -1,10 +1,10 @@
-DAY-OF-WEEK
-MONTH
-MONTH-SHORT
-MONTH yyyy
-MONTH-SHORT yyyy
-yyyy MONTH-SHORT
-yyyy MONTH
+EEEE
+MMMM
+MMM
+MMMM yyyy
+MMM yyyy
+yyyy MMM
+yyyy MMMM
 yyyy
 MM/dd/yy
 MM/dd/yyyy

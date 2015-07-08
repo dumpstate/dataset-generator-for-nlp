@@ -49,7 +49,7 @@ object Generator extends App {
 
   println(s"Artists: ${artists.size}, Venues: ${venues.size}, DateTemplates: ${dateTemplates.size}, Expressions: ${expressions.size}")
 
-  val trainingSetSize = 10000
+  val trainingSetSize = 100
 
   val out = new FileOutputStream("out.train")
 

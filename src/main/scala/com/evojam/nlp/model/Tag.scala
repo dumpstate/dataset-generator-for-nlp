@@ -15,6 +15,8 @@ object Tag {
   val Date = Tag("DATE")
   val Time = Tag("TIME")
   val Preposition = Tag("PREP")
+  val Determiner = Tag("DATE")
+  val Period = Tag("DATE")
 
   def tagOf(value: String): Tag = value match {
     case Artist.value => Artist

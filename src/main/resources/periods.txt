@@ -1,0 +1,6 @@
+decade
+year
+month
+week
+day
+hour

@@ -7,7 +7,7 @@ import scala.io.Source
 import scala.util.Random
 
 import com.evojam.nlp.model.{Expression, DateTemplate}
-import com.evojam.nlp.model.entity.{Venue, Artist}
+import com.evojam.nlp.model.entity.{Period, Determiner, Venue, Artist}
 
 object Generator extends App {
   def filterNonAlphaChars(str: String) =
@@ -30,6 +30,20 @@ object Generator extends App {
     .filter(_.nonEmpty)
     .map(Venue)
 
+  lazy val determiners = Source.fromFile("src/main/resources/determiners.txt")
+    .getLines().toList
+    .map(_.toLowerCase)
+    .map(filterNonAlphaChars)
+    .filter(_.nonEmpty)
+    .map(Determiner)
+
+  lazy val periods = Source.fromFile("src/main/resources/periods.txt")
+    .getLines().toList
+    .map(_.toLowerCase)
+    .map(filterNonAlphaChars)
+    .filter(_.nonEmpty)
+    .map(Period)
+
   lazy val dateTemplates = Source.fromFile("src/main/resources/date-template.txt")
     .getLines().toList
     .filter(_.nonEmpty)
@@ -49,14 +63,20 @@ object Generator extends App {
 
   println(s"Artists: ${artists.size}, Venues: ${venues.size}, DateTemplates: ${dateTemplates.size}, Expressions: ${expressions.size}")
 
-  val trainingSetSize = 100
+  val trainingSetSize = 500
 
   val out = new FileOutputStream("out.train")
 
   for (i <- 0 to trainingSetSize) {
     val (firstDate, secondDate) = pickSingle(dateTemplates).pickDates
     val expressionBytes = pickSingle(expressions)
-      .render(pickSingle(artists), pickSingle(venues), firstDate, secondDate)
+      .render(
+        pickSingle(artists),
+        pickSingle(venues),
+        firstDate,
+        secondDate,
+        pickSingle(determiners),
+        pickSingle(periods))
       .getBytes(StandardCharsets.UTF_8)
 
     out.write(expressionBytes)

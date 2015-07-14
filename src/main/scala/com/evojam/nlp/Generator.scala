@@ -54,12 +54,8 @@ object Generator extends App {
     .filter(_.nonEmpty)
     .map(Expression)
 
-  def pickSingle[T](list: List[T]): T = {
-    require(list != null, "list cannot be null")
-    require(list.nonEmpty, "lsit cannot be empty")
-
-    list(Random.nextInt(list.size))
-  }
+  def next[T](list: List[T], i: Int): T =
+    list(i % list.length)
 
   println(s"Artists: ${artists.size}, Venues: ${venues.size}, DateTemplates: ${dateTemplates.size}, Expressions: ${expressions.size}")
 
@@ -67,21 +63,20 @@ object Generator extends App {
 
   val out = new FileOutputStream("out.train")
 
-  for (i <- 0 to trainingSetSize) {
-    val (firstDate, secondDate) = pickSingle(dateTemplates).pickDates
-    val expressionBytes = pickSingle(expressions)
-      .render(
-        pickSingle(artists),
-        pickSingle(venues),
-        firstDate,
-        secondDate,
-        pickSingle(determiners),
-        pickSingle(periods))
+  for {
+    i <- 0 to trainingSetSize
+  } {
+    val (firstDate, secondDate) = next(dateTemplates, i).pickDates()
+    val bytes = next(expressions, i).render(
+      next(artists, i),
+      next(venues, i),
+      firstDate,
+      secondDate,
+      next(determiners, i),
+      next(periods, i))
       .getBytes(StandardCharsets.UTF_8)
-
-    out.write(expressionBytes)
+    out.write(bytes)
     out.write("\n\n".getBytes(StandardCharsets.UTF_8))
   }
-
   out.close()
 }

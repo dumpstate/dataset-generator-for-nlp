@@ -9,3 +9,5 @@ yyyy
 MM/dd/yy
 MM/dd/yyyy
 yyyy-MM-dd
+MMMM dd yyyy
+MMM dd yyyy

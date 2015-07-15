@@ -1,11 +1,12 @@
 package com.evojam.nlp.model
 
+import java.util.Locale
+
 import scala.util.Random
 
+import com.evojam.nlp.model.entity.Date
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
-
-import com.evojam.nlp.model.entity.Date
 
 case class DateTemplate(value: String) {
   require(value != null, "value cannot be null")
@@ -23,7 +24,10 @@ case class DateTemplate(value: String) {
   }
 
   private def format(date: DateTime): String =
-    DateTimeFormat.forPattern(value).print(date).toLowerCase()
+    DateTimeFormat
+      .forPattern(value)
+      .withLocale(Locale.US)
+      .print(date).toLowerCase()
 
   private def pickDate(greaterThan: DateTime = MinDate): DateTime =
     greaterThan.plusHours(MinHours + Random.nextInt(MaxHours))

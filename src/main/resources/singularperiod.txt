@@ -3,4 +3,3 @@ year
 month
 week
 day
-hour

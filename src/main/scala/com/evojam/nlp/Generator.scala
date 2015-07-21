@@ -6,8 +6,7 @@ import java.nio.charset.StandardCharsets
 import scala.io.Source
 import scala.util.Random
 
-import com.evojam.nlp.model.{Expression, DateTemplate}
-import com.evojam.nlp.model.entity.{Period, Determiner, Venue, Artist}
+import com.evojam.nlp.model._
 
 object Generator extends App {
   def filterNonAlphaChars(str: String) =
@@ -16,43 +15,29 @@ object Generator extends App {
       .replaceAll("[^a-z0-9 ]", "")
       .replaceAll("\\s+", " ")
 
-  lazy val artists = Source.fromFile("src/main/resources/artist.txt")
-    .getLines().toList
-    .map(_.toLowerCase)
-    .map(filterNonAlphaChars)
-    .filter(_.nonEmpty)
-    .map(Artist)
+  def load[T](
+    file: String,
+    f: String => T,
+    removeNonAlphaChars: Boolean = true,
+    toLowerCase: Boolean = true): List[T] =
+    Source.fromFile(s"src/main/resources/$file.txt")
+      .getLines().toList
+      .map(line => if (toLowerCase) line.toLowerCase else line)
+      .map(line => if (removeNonAlphaChars) filterNonAlphaChars(line) else line)
+      .filter(_.nonEmpty)
+      .map(f)
 
-  lazy val venues = Source.fromFile("src/main/resources/venues.txt")
-    .getLines().toList
-    .map(_.toLowerCase)
-    .map(filterNonAlphaChars)
-    .filter(_.nonEmpty)
-    .map(Venue)
-
-  lazy val determiners = Source.fromFile("src/main/resources/determiners.txt")
-    .getLines().toList
-    .map(_.toLowerCase)
-    .map(filterNonAlphaChars)
-    .filter(_.nonEmpty)
-    .map(Determiner)
-
-  lazy val periods = Source.fromFile("src/main/resources/periods.txt")
-    .getLines().toList
-    .map(_.toLowerCase)
-    .map(filterNonAlphaChars)
-    .filter(_.nonEmpty)
-    .map(Period)
-
-  lazy val dateTemplates = Source.fromFile("src/main/resources/date-template.txt")
-    .getLines().toList
-    .filter(_.nonEmpty)
-    .map(DateTemplate)
-
-  lazy val expressions = Source.fromFile("src/main/resources/expression.txt")
-    .getLines().toList
-    .filter(_.nonEmpty)
-    .map(Expression)
+  lazy val artists = load("artist", Artist)
+  lazy val venues = load("venues", Venue)
+  lazy val singularDet = load("singulardet", SingularDeterminer)
+  lazy val pluralDet = load("pluraldet", PluralDeterminer)
+  lazy val directAdverb = load("diradv", DirectAdverb)
+  lazy val singularPeriod = load("singularperiod", SingularPeriod)
+  lazy val pluralPeriod = load("pluralperiod", PluralPeriod)
+  lazy val dateTemplates = load("date-template", DateTemplate, false, false)
+  lazy val inDateTemplates = load("indates", InDateTemplate, false, false)
+  lazy val onDateTemplates = load("ondates", OnDateTemplate, false, false)
+  lazy val expressions = load("expression", Expression, false, false)
 
   def pickSingle[T](list: List[T]): T = {
     require(list != null, "list cannot be null")
@@ -63,20 +48,27 @@ object Generator extends App {
 
   println(s"Artists: ${artists.size}, Venues: ${venues.size}, DateTemplates: ${dateTemplates.size}, Expressions: ${expressions.size}")
 
-  val trainingSetSize = 10000
+  val trainingSetSize = 100000
 
   val out = new FileOutputStream("out.train")
 
   for (i <- 0 to trainingSetSize) {
     val (firstDate, secondDate) = pickSingle(dateTemplates).pickDates
+    val (inDate, _) = pickSingle(inDateTemplates).pickDates
+    val (onDate, _) = pickSingle(onDateTemplates).pickDates
     val expressionBytes = pickSingle(expressions)
       .render(
         pickSingle(artists),
         pickSingle(venues),
         firstDate,
         secondDate,
-        pickSingle(determiners),
-        pickSingle(periods))
+        inDate,
+        onDate,
+        pickSingle(singularDet),
+        pickSingle(pluralDet),
+        pickSingle(directAdverb),
+        pickSingle(singularPeriod),
+        pickSingle(pluralPeriod))
       .getBytes(StandardCharsets.UTF_8)
 
     out.write(expressionBytes)

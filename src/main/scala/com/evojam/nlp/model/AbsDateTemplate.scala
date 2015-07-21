@@ -4,11 +4,10 @@ import java.util.Locale
 
 import scala.util.Random
 
-import com.evojam.nlp.model.entity.Date
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-case class DateTemplate(value: String) {
+sealed abstract class AbsDateTemplate(value: String) {
   require(value != null, "value cannot be null")
   require(value.nonEmpty, "value cennot be empty")
 
@@ -32,3 +31,7 @@ case class DateTemplate(value: String) {
   private def pickDate(greaterThan: DateTime = MinDate): DateTime =
     greaterThan.plusHours(MinHours + Random.nextInt(MaxHours))
 }
+
+case class DateTemplate(value: String) extends AbsDateTemplate(value)
+case class InDateTemplate(value: String) extends AbsDateTemplate(value)
+case class OnDateTemplate(value: String) extends AbsDateTemplate(value)

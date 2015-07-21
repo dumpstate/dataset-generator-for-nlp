@@ -1,10 +1,11 @@
 EEEE
+EEE
 MMMM
 MMM
 MMMM yyyy
 MMM yyyy
-yyyy MMM
 yyyy MMMM
+yyyy MMM
 yyyy
 MM/dd/yy
 MM/dd/yyyy
